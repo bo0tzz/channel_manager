@@ -25,3 +25,7 @@ channel_manager-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+
+#Intellij files
+/.idea/
+*.iml
