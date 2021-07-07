@@ -14,7 +14,8 @@ defmodule ChannelManager.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {ChannelManager.Application, []}
     ]
   end
 
@@ -24,7 +25,8 @@ defmodule ChannelManager.MixProject do
       {:ex_gram, "~> 0.21"},
       {:tesla, "~> 1.2"},
       {:hackney, "~> 1.12"},
-      {:jason, ">= 1.0.0"}
+      {:jason, ">= 1.0.0"},
+      {:dotenv_parser, "~> 1.2"}
     ]
   end
 end

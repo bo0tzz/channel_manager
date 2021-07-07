@@ -1,18 +1,16 @@
 defmodule ChannelManager do
-  @moduledoc """
-  Documentation for `ChannelManager`.
-  """
+  @bot :channel_manager
 
-  @doc """
-  Hello world.
+  use ExGram.Bot,
+    name: @bot,
+    setup_commands: true
 
-  ## Examples
+  def bot(), do: @bot
+  def me(), do: ExGram.get_me(bot: bot())
 
-      iex> ChannelManager.hello()
-      :world
+  command("start", description: "Get started")
 
-  """
-  def hello do
-    :world
-  end
+  middleware(ExGram.Middleware.IgnoreUsername)
+
+  def handle({:command, :start, _}, context), do: answer(context, "Hello world!")
 end
