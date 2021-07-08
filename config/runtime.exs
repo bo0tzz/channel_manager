@@ -8,4 +8,4 @@ config :channel_manager,
   bot_token: System.fetch_env!("BOT_TOKEN"),
   source_channel: System.fetch_env!("SOURCE_CHANNEL"),
   target_channel: System.fetch_env!("TARGET_CHANNEL"),
-  delete_approved: System.get_env("DELETE_APPROVED", "true")
+  delete_approved: System.get_env("DELETE_APPROVED", "false")
