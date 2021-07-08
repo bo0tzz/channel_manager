@@ -74,17 +74,20 @@ defmodule Reddit do
   defp new_posts({subreddit, before}) do
     response = Reddit.Api.new(subreddit, before)
 
-    image_posts =
+    children =
       Enum.map(
         response["data"]["children"],
         fn child ->
           child["data"]
         end
       )
+
+    image_posts =
+      children
       |> Enum.filter(fn child -> child["post_hint"] == "image" end)
       |> Enum.map(&Map.take(&1, @keys_to_keep))
 
-    new_before = List.first(image_posts)["name"] || before
+    new_before = List.first(children)["name"] || before
     {image_posts, {subreddit, new_before}}
   end
 end
