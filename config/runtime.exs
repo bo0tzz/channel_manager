@@ -5,4 +5,6 @@ if Config.config_env() == :dev do
 end
 
 config :channel_manager,
-  bot_token: System.fetch_env!("BOT_TOKEN")
+  bot_token: System.fetch_env!("BOT_TOKEN"),
+  source_channel: System.fetch_env!("SOURCE_CHANNEL"),
+  target_channel: System.fetch_env!("TARGET_CHANNEL")
