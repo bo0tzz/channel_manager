@@ -14,5 +14,5 @@ end
 
 config :channel_manager, ChannelManager.Scheduler,
   jobs: [
-    {"* * * * *", {Reddit, :trigger_scan, []}}
+    {"*/10 * * * *", {Reddit, :trigger_scan, []}}
   ]
