@@ -6,7 +6,9 @@ defmodule ChannelManager.Application do
   def start(_type, _args) do
     children = [
       ExGram,
-      {ChannelManager, [method: :polling, token: Application.fetch_env!(:channel_manager, :bot_token)]}
+      {ChannelManager,
+       [method: :polling, token: Application.fetch_env!(:channel_manager, :bot_token)]},
+      Reddit
     ]
 
     opts = [strategy: :one_for_one, name: ChannelManager.Supervisor]
