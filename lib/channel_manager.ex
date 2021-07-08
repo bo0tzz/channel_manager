@@ -20,6 +20,7 @@ defmodule ChannelManager do
 
   def source_channel(), do: Integer.parse(Application.fetch_env!(:channel_manager, :source_channel)) |> elem(0)
   def target_channel(), do: Integer.parse(Application.fetch_env!(:channel_manager, :target_channel)) |> elem(0)
+  def delete_approved(), do: Application.fetch_env!(:channel_manager, :delete_approved) == "true"
 
   command("ok", description: "Reply to a post with this command to approve it")
 
@@ -35,10 +36,15 @@ defmodule ChannelManager do
 
   def approve(%{caption: caption, photo: photo} = message, context, approval_msg) do
     Logger.debug("Forwarding message to target channel #{target_channel()}")
-    ExGram.send_photo(target_channel(), List.first(photo).file_id, bot: bot(), caption: caption)
+    {:ok, _} = ExGram.send_photo(target_channel(), List.first(photo).file_id, bot: bot(), caption: caption)
+    if delete_approved() do
+      context
+      |> delete(message)
+      |> delete(approval_msg)
+    end
   end
 
-  def approve(%{photo: photo} = message, context, approval_msg) do
+  def approve(%{photo: _} = message, context, approval_msg) do
     Logger.debug("Target message did not have caption")
     Map.put(message, :caption, "")
     |> approve(context, approval_msg)
