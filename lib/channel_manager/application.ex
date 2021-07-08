@@ -8,7 +8,8 @@ defmodule ChannelManager.Application do
       ExGram,
       {ChannelManager,
        [method: :polling, token: Application.fetch_env!(:channel_manager, :bot_token)]},
-      Reddit
+      Reddit,
+      ChannelManager.Scheduler
     ]
 
     opts = [strategy: :one_for_one, name: ChannelManager.Supervisor]

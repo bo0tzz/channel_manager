@@ -11,3 +11,8 @@ case Config.config_env() do
         [application: :tesla]
       ]
 end
+
+config :channel_manager, ChannelManager.Scheduler,
+  jobs: [
+    {"* * * * *", {Reddit, :trigger_scan, []}}
+  ]
