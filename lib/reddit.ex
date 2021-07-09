@@ -45,11 +45,13 @@ defmodule Reddit do
     {posts, subreddits} = get_posts(subreddits, token)
     Logger.debug("Got #{length(posts)} new posts")
 
-    {send, keep} =
-      List.flatten([known_posts | posts])
-      |> filter_posts()
+    all_posts = List.flatten([known_posts | posts])
+    {send, keep} = filter_posts(all_posts)
 
-    Logger.info("Sending #{length(send)} posts, keeping #{length(keep)}")
+    kept = length(keep)
+    sent = length(send)
+    discarded = length(all_posts) - kept - sent
+    Logger.info("Sending #{length(send)} posts, keeping #{length(keep)}, discarding #{discarded}")
 
     Enum.each(send, &send_to_channel/1)
     %{state | subreddits: subreddits, known_posts: keep}
