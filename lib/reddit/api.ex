@@ -11,6 +11,14 @@ defmodule Reddit.Api do
     get(token, "/r/" <> subreddit <> "/new?before=" <> before)
   end
 
+  def bulk(token, names) do
+    q =
+      Enum.map(names, &String.trim/1)
+      |> Enum.join(",")
+
+    get(token, "/by_id/" <> q)
+  end
+
   defp get(token, url) do
     {:ok, response} = client(token) |> Tesla.get(url)
     Jason.decode!(response.body)
