@@ -1,6 +1,4 @@
 defmodule Reddit do
-  use GenServer
-
   require Logger
 
   defstruct [
@@ -11,49 +9,28 @@ defmodule Reddit do
 
   defp send_captions(), do: Application.fetch_env!(:channel_manager, :send_captions)
 
-  def start_link(_), do: GenServer.start_link(__MODULE__, nil, name: __MODULE__)
-
-  @impl true
-  def init(_) do
+  def init() do
     subreddits =
       Application.fetch_env!(:channel_manager, :subreddits)
       |> Enum.map(&{&1, ""})
 
-    {
-      :ok,
-      %Reddit{subreddits: subreddits},
-      {:continue, :initialize}
-    }
+    %Reddit{subreddits: subreddits}
   end
 
-  @impl true
-  def handle_continue(:initialize, %Reddit{subreddits: subreddits} = state) do
+  def trigger_scan(), do: GenServer.cast(Reddit.Server, :scan)
+
+  def discard_scan(%Reddit{subreddits: subreddits} = state) do
     {p, subreddits} = get_posts(subreddits)
-    Logger.info("Discarding #{length(p)} posts for initialization")
+    Logger.debug("Discarding #{length(p)} posts")
 
-    {
-      :noreply,
-      %{state | subreddits: subreddits}
-    }
+    %{state | subreddits: subreddits}
   end
 
-  @impl true
-  def handle_cast(:scan, %Reddit{subreddits: subreddits} = state) do
-    subreddits = do_scan(subreddits)
-
-    {
-      :noreply,
-      %{state | subreddits: subreddits}
-    }
-  end
-
-  def trigger_scan(), do: GenServer.cast(__MODULE__, :scan)
-
-  def do_scan(subreddits) do
+  def do_scan(%Reddit{subreddits: subreddits} = state) do
     {posts, subreddits} = get_posts(subreddits) |> IO.inspect()
     Logger.info("Got #{length(posts)} new posts")
     Enum.each(posts, &send_to_channel/1)
-    subreddits
+    %{state | subreddits: subreddits}
   end
 
   defp get_posts(subreddits) do
