@@ -40,12 +40,36 @@ defmodule Reddit do
     %{state | subreddits: subreddits}
   end
 
-  def do_scan(%Reddit{subreddits: subreddits} = state) do
+  def do_scan(%Reddit{subreddits: subreddits, known_posts: known_posts} = state) do
     {state, token} = get_token(state)
+
+    known_posts = update_posts(known_posts, token)
+    Logger.debug("#{length(known_posts)} known posts")
+
     {posts, subreddits} = get_posts(subreddits, token)
     Logger.debug("Got #{length(posts)} new posts")
-    Enum.each(posts, &send_to_channel/1)
-    %{state | subreddits: subreddits}
+
+    {send, keep} =
+      List.flatten([known_posts | posts])
+      |> filter_posts()
+
+    Logger.debug("Sending #{length(send)} posts, keeping #{length(keep)}")
+
+    Enum.each(send, &send_to_channel/1)
+    %{state | subreddits: subreddits, known_posts: keep}
+  end
+
+  defp update_posts([], _), do: []
+
+  defp update_posts(known_posts, token) do
+    names = Enum.map(known_posts, fn post -> post["name"] end)
+
+    Reddit.Api.bulk(token, names)
+    |> get_in(["data", "children"])
+    |> Enum.map(fn child ->
+      child["data"]
+    end)
+    |> Enum.map(&Map.take(&1, @keys_to_keep))
   end
 
   defp get_posts(subreddits, token) do
@@ -74,7 +98,7 @@ defmodule Reddit do
 
   defp filter_posts([post | posts], send, keep) do
     {send, keep} =
-      case filter?(post |> IO.inspect()) |> IO.inspect() do
+      case filter?(post |> IO.inspect()) do
         :send -> {[post | send], keep}
         :keep -> {send, [post | keep]}
         _ -> {send, keep}
@@ -113,7 +137,6 @@ defmodule Reddit do
 
     image_posts =
       children
-      |> Enum.filter(fn child -> child["post_hint"] == "image" end)
       |> Enum.map(&Map.take(&1, @keys_to_keep))
 
     new_before = List.first(children)["name"] || before
