@@ -18,10 +18,12 @@ defmodule Reddit do
       Application.fetch_env!(:channel_manager, :subreddits)
       |> Enum.map(&{&1, ""})
 
-    oauth = %Reddit.Api.OAuth{
+    oauth = Reddit.Api.OAuth.request_token(%Reddit.Api.OAuth{
       client_id: Application.fetch_env!(:channel_manager, :reddit_client_id),
       client_secret: Application.fetch_env!(:channel_manager, :reddit_client_secret)
-    }
+    })
+
+    Logger.info("Initialized Reddit scraper")
 
     %Reddit{subreddits: subreddits, known_posts: [], oauth: oauth}
   end

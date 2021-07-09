@@ -23,7 +23,7 @@ defmodule Reddit.Api.OAuth do
     {state.token, state}
   end
 
-  defp request_token(state) do
+  def request_token(state) do
     {:ok, response} =
       client(state)
       |> Tesla.post("/api/v1/access_token", %{grant_type: :client_credentials})
