@@ -7,7 +7,7 @@ defmodule Reddit do
     :oauth
   ]
 
-  @keys_to_keep ["title", "name", "url", "created_utc", "ups"]
+  @keys_to_keep ["title", "name", "url", "created_utc", "ups", "post_hint", "is_self"]
 
   defp send_captions(), do: Application.fetch_env!(:channel_manager, :send_captions)
 
@@ -112,14 +112,15 @@ defmodule Reddit do
   end
 
   defp filter?(%{"post_hint" => type}) when type != "image", do: :discard
+  defp filter?(%{"is_self" => true}), do: :discard
 
   defp filter?(%{"created_utc" => created, "ups" => upvotes}) do
     max_age = age_threshold()
     min_votes = vote_threshold()
 
     case {System.os_time(:second) - round(created), upvotes} do
-      {_, upvotes} when upvotes > min_votes -> :send
-      {age, _} when age > max_age -> :discard
+      {_, upvotes} when upvotes >= min_votes -> :send
+      {age, _} when age >= max_age -> :discard
       _ -> :keep
     end
   end
