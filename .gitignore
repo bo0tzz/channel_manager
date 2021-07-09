@@ -30,3 +30,4 @@ channel_manager-*.tar
 /.idea/
 *.iml
 .env
+config.yaml

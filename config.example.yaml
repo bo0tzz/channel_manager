@@ -1,0 +1,18 @@
+telegram:
+  token: TELEGRAM_TOKEN
+  source_channel: -1
+  target_channel: -2
+  delete_approved: true
+  send_captions: true
+
+reddit:
+  client_id: CLIENT_ID
+  client_secret: CLIENT_SECRET
+  subreddits:
+    - aww
+    - pics
+  vote_threshold: 10
+  age_threshold: 86400
+
+scheduler:
+  crontab: "*/10 * * * *" # Every 10 minutes

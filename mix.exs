@@ -26,8 +26,8 @@ defmodule ChannelManager.MixProject do
       {:tesla, "~> 1.2"},
       {:hackney, "~> 1.12"},
       {:jason, ">= 1.0.0"},
-      {:dotenv_parser, "~> 1.2"},
-      {:quantum, "~> 3.0"}
+      {:quantum, "~> 3.0"},
+      {:yaml_elixir, "~> 2.7"}
     ]
   end
 end
