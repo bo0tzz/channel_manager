@@ -16,7 +16,7 @@ defmodule Reddit.Api.OAuth do
   def get_token(%OAuth{expiry: exp} = state) do
     state =
       case System.os_time(:second) - exp do
-        s_left when s_left < 10 -> request_token(state)
+        s_left when s_left < 60 -> request_token(state)
         _ -> state
       end
 
