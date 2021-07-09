@@ -10,12 +10,8 @@ defmodule Reddit do
   @keys_to_keep ["title", "name", "url", "created_utc", "ups", "post_hint", "is_self"]
 
   defp send_captions(), do: Application.fetch_env!(:channel_manager, :send_captions)
-
-  defp vote_threshold(),
-    do: Integer.parse(Application.fetch_env!(:channel_manager, :reddit_vote_threshold)) |> elem(0)
-
-  defp age_threshold(),
-    do: Integer.parse(Application.fetch_env!(:channel_manager, :reddit_age_threshold)) |> elem(0)
+  defp vote_threshold(), do: Application.fetch_env!(:channel_manager, :reddit_vote_threshold)
+  defp age_threshold(), do: Application.fetch_env!(:channel_manager, :reddit_age_threshold)
 
   def init() do
     subreddits =

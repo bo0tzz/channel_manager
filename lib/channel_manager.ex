@@ -19,13 +19,9 @@ defmodule ChannelManager do
   def bot(), do: @bot
   def me(), do: ExGram.get_me(bot: bot())
 
-  def source_channel(),
-    do: Integer.parse(Application.fetch_env!(:channel_manager, :source_channel)) |> elem(0)
-
-  def target_channel(),
-    do: Integer.parse(Application.fetch_env!(:channel_manager, :target_channel)) |> elem(0)
-
-  def delete_approved(), do: Application.fetch_env!(:channel_manager, :delete_approved) == "true"
+  def source_channel(), do: Application.fetch_env!(:channel_manager, :source_channel)
+  def target_channel(), do: Application.fetch_env!(:channel_manager, :target_channel)
+  def delete_approved(), do: Application.fetch_env!(:channel_manager, :delete_approved)
 
   command("ok", description: "Reply to a post with this command to approve it")
 
