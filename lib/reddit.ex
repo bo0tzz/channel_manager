@@ -49,7 +49,7 @@ defmodule Reddit do
       List.flatten([known_posts | posts])
       |> filter_posts()
 
-    Logger.debug("Sending #{length(send)} posts, keeping #{length(keep)}")
+    Logger.info("Sending #{length(send)} posts, keeping #{length(keep)}")
 
     Enum.each(send, &send_to_channel/1)
     %{state | subreddits: subreddits, known_posts: keep}
