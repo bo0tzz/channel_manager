@@ -6,6 +6,8 @@ end
 
 config :channel_manager,
   bot_token: System.fetch_env!("BOT_TOKEN"),
+  reddit_client_id: System.fetch_env!("REDDIT_CLIENT_ID"),
+  reddit_client_secret: System.fetch_env!("REDDIT_CLIENT_SECRET"),
   source_channel: System.fetch_env!("SOURCE_CHANNEL"),
   target_channel: System.fetch_env!("TARGET_CHANNEL"),
   subreddits:
@@ -13,4 +15,6 @@ config :channel_manager,
     |> String.split()
     |> Enum.map(&String.replace(&1, ~r"^/?r/", "")),
   delete_approved: System.get_env("DELETE_APPROVED", "false"),
-  send_captions: System.get_env("SEND_CAPTIONS", "false") == "true"
+  send_captions: System.get_env("SEND_CAPTIONS", "false") == "true",
+  reddit_vote_threshold: System.get_env("REDDIT_VOTE_THRESHOLD", "10"),
+  reddit_age_threshold: System.get_env("REDDIT_AGE_THRESHOLD", "86400")

@@ -1,20 +1,29 @@
 defmodule Reddit.Api do
   require Logger
 
-  @api_root "https://www.reddit.com/r/"
-  @new_posts "/new.json"
-  @before "?before="
+  @api_root "https://oauth.reddit.com/"
 
-  def new(subreddit) do
-    new(subreddit, "")
+  def new(token, subreddit) do
+    new(token, subreddit, "")
   end
 
-  def new(subreddit, before) do
-    get(@api_root <> subreddit <> @new_posts <> @before <> before)
+  def new(token, subreddit, before) do
+    get(token, "/r/" <> subreddit <> "/new?before=" <> before)
   end
 
-  defp get(url) do
-    {:ok, response} = Tesla.get(url)
+  defp get(token, url) do
+    {:ok, response} = client(token) |> Tesla.get(url)
     Jason.decode!(response.body)
+  end
+
+  defp client(token) do
+    Tesla.client([
+      {Tesla.Middleware.BaseUrl, @api_root},
+      {Tesla.Middleware.Headers,
+       [
+         {"Authorization", "Bearer " <> token},
+         {"User-Agent", "bo0tzz:telegram-channel-mirror:v0.1.0"}
+       ]}
+    ])
   end
 end
