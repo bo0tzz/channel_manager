@@ -87,10 +87,14 @@ defmodule Reddit do
     {%{state | oauth: oauth}, token}
   end
 
-  defp send_to_channel(%{"title" => caption, "url" => url}) do
-    case send_captions() do
-      true -> ChannelManager.send_to_source(url, caption)
-      false -> ChannelManager.send_to_source(url, "")
+  defp send_to_channel(%{"title" => caption, "url" => url} = post) do
+    try do
+      case send_captions() do
+        true -> ChannelManager.send_to_source(url, caption)
+        false -> ChannelManager.send_to_source(url, "")
+      end
+    rescue
+      e in MatchError -> Logger.error("Failed to forward post #{inspect(post)}: #{inspect(e)}")
     end
   end
 
