@@ -8,7 +8,8 @@ defmodule ChannelManager do
     "approve",
     "approved",
     "👍",
-    "good"
+    "good",
+    "yes"
   ]
 
   use ExGram.Bot,
