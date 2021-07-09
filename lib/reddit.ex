@@ -32,10 +32,12 @@ defmodule Reddit do
 
   def discard_scan(%Reddit{subreddits: subreddits} = state) do
     {state, token} = get_token(state)
-    {p, subreddits} = get_posts(subreddits, token)
-    Logger.debug("Discarding #{length(p)} posts")
+    {posts, subreddits} = get_posts(subreddits, token)
 
-    %{state | subreddits: subreddits}
+    {discard, keep} = filter_posts(posts)
+    Logger.info("Discarding #{length(discard)} posts, monitoring #{length(keep)}")
+
+    %{state | subreddits: subreddits, known_posts: keep}
   end
 
   def do_scan(%Reddit{subreddits: subreddits, known_posts: known_posts} = state) do
@@ -53,7 +55,7 @@ defmodule Reddit do
     kept = length(keep)
     sent = length(send)
     discarded = length(all_posts) - kept - sent
-    Logger.info("Sending #{length(send)} posts, keeping #{length(keep)}, discarding #{discarded}")
+    Logger.info("Sending #{length(send)} posts, keeping #{length(keep)}, discarding #{discarded}. (#{length(posts)} new)")
 
     Enum.each(send, &send_to_channel/1)
     %{state | subreddits: subreddits, known_posts: keep}
