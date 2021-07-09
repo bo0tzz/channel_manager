@@ -98,7 +98,7 @@ defmodule Reddit do
 
   defp filter_posts([post | posts], send, keep) do
     {send, keep} =
-      case filter?(post |> IO.inspect()) do
+      case filter?(post) do
         :send -> {[post | send], keep}
         :keep -> {send, [post | keep]}
         _ -> {send, keep}
