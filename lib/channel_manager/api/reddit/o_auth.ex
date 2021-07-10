@@ -7,7 +7,14 @@ defmodule ChannelManager.Api.Reddit.OAuth do
   ]
 
   alias ChannelManager.Api.Reddit.OAuth
-  # TODO: use GenServer
+
+  def get_token() do
+    GenServer.call(ChannelManager.Api.Reddit.Server, :token)
+  end
+
+  def from_map(%{"client_id" => client_id, "client_secret" => client_secret}) do
+    %OAuth{client_id: client_id, client_secret: client_secret}
+  end
 
   def get_token(%OAuth{token: nil} = state) do
     state = request_token(state)

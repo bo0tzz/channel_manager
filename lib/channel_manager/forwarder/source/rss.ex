@@ -24,10 +24,11 @@ defmodule ChannelManager.Forwarder.Source.RSS do
   end
 
   defp remove_seen(posts, %{seen_upto: id} = state) do
-    {new_posts, _seen} = case id do
-      nil -> {[], []}
-      id -> Enum.split_while(posts, fn post -> post.id != id end)
-    end
+    {new_posts, _seen} =
+      case id do
+        nil -> {[], []}
+        id -> Enum.split_while(posts, fn post -> post.id != id end)
+      end
 
     state =
       case posts do

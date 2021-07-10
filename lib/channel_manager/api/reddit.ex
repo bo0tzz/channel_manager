@@ -3,24 +3,24 @@ defmodule ChannelManager.Api.Reddit do
 
   @api_root "https://oauth.reddit.com/"
 
-  def new(token, subreddit) do
-    new(token, subreddit, "")
+  def new(subreddit) do
+    new(subreddit, "")
   end
 
-  def new(token, subreddit, before) do
-    get(token, "/r/" <> subreddit <> "/new?before=" <> before)
+  def new(subreddit, before) do
+    get("/r/" <> subreddit <> "/new?before=" <> before)
   end
 
-  def bulk(names, token) do
+  def bulk(names) do
     q =
       Enum.map(names, &String.trim/1)
       |> Enum.join(",")
 
-    get(token, "/by_id/" <> q)
+    get("/by_id/" <> q)
   end
 
-  defp get(token, url) do
-    {:ok, response} = client(token) |> Tesla.get(url)
+  defp get(url) do
+    {:ok, response} = client() |> Tesla.get(url)
     body = Jason.decode!(response.body)
 
     Enum.map(body["data"]["children"], fn child -> child["data"] end)
@@ -28,7 +28,9 @@ defmodule ChannelManager.Api.Reddit do
     |> Enum.reject(&match?(nil, &1))
   end
 
-  defp client(token) do
+  defp client() do
+    token = ChannelManager.Api.Reddit.OAuth.get_token()
+
     Tesla.client([
       {Tesla.Middleware.BaseUrl, @api_root},
       {Tesla.Middleware.Headers,
