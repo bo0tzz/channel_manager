@@ -3,18 +3,18 @@ defmodule ChannelManager.Forwarder do
 
   typedstruct enforce: true do
     field :name, String.t()
-    field :schedule, String.t()
+    field :interval, integer()
     field :from, ChannelManager.Forwarder.Source.t()
     field :to, ChannelManager.Forwarder.Target.t()
   end
 
-  def from_map(%{"name" => name, "schedule" => schedule, "from" => from, "to" => to}) do
+  def from_map(%{"name" => name, "interval" => interval, "from" => from, "to" => to}) do
     from = ChannelManager.Forwarder.Source.from_map(from)
     to = ChannelManager.Forwarder.Target.from_map(to)
 
     %ChannelManager.Forwarder{
       name: name,
-      schedule: schedule,
+      interval: interval,
       from: from,
       to: to
     }
