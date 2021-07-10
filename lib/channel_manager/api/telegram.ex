@@ -32,4 +32,6 @@ defmodule ChannelManager.Api.Telegram do
       {:ok, _} -> nil
     end
   end
+
+  def send_post(%Post{type: "rich:video"} = post, target), do: send_post(%{post | type: "link"}, target)
 end
