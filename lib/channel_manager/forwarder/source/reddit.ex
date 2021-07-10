@@ -13,6 +13,9 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
       |> Enum.map(&String.trim/1)
       |> Enum.map(&{&1, ""})
 
+    {discarded, seen_upto} = load_new(seen_upto)
+    Logger.debug("Discarding #{length(discarded)} reddit posts on initialization")
+
     %{
       known_posts: [],
       seen_upto: seen_upto
@@ -41,13 +44,16 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
 
     Logger.debug("#{length(known_posts)} known reddit posts")
 
-    {new_posts, seen_upto} =
-      Enum.map(seen_upto, &new_posts/1)
-      |> Enum.unzip()
+    {new_posts, seen_upto} = load_new(seen_upto)
 
     Logger.debug("Got #{length(new_posts)} new reddit posts")
 
     {List.flatten([known_posts | new_posts]), %{state | seen_upto: seen_upto}}
+  end
+
+  defp load_new(seen_upto) do
+    Enum.map(seen_upto, &new_posts/1)
+    |> Enum.unzip()
   end
 
   defp new_posts({subreddit, before}) do
