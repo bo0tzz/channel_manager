@@ -1,4 +1,6 @@
 defmodule ChannelManager.Model.Post do
+  require Logger
+
   use TypedStruct
 
   typedstruct enforce: true do
@@ -26,6 +28,12 @@ defmodule ChannelManager.Model.Post do
       votes: votes,
       type: type
     }
+  end
+
+  def from_reddit(post) do
+    only_required_keys = Map.take(post, ["title", "name", "url", "created_utc", "ups", "post_hint"])
+    Logger.warn("Reddit post is missing required keys: #{inspect(only_required_keys)}")
+    nil
   end
 
   def from_rss(%{

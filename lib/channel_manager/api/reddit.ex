@@ -24,6 +24,7 @@ defmodule ChannelManager.Api.Reddit do
     body = Jason.decode!(response.body)
     Enum.map(body["data"]["children"], fn child -> child["data"] end)
     |> Enum.map(&ChannelManager.Model.Post.from_reddit/1)
+    |> Enum.reject(&match?(nil, &1))
   end
 
   defp client(token) do
