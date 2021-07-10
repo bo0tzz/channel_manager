@@ -7,7 +7,7 @@ defmodule ChannelManager.Forwarder.Supervisor do
 
   @impl true
   def init(forwarders) do
-    Enum.map(forwarders, &{ChannelManager.Forwarder.Server, [&1]})
+    Enum.map(forwarders, &{ChannelManager.Forwarder.Server, &1})
     |> Supervisor.init(strategy: :one_for_one)
   end
 end

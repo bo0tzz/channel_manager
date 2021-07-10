@@ -4,15 +4,16 @@ defmodule ChannelManager.Application do
   use Application
 
   def start(_type, _args) do
+    config = Application.fetch_env!(:channel_manager, :config)
+    forwarders = Enum.map(config["forwarders"], &ChannelManager.Forwarder.from_map/1)
+
     children = [
       ExGram,
-      {ChannelManager,
-       [method: :polling, token: Application.fetch_env!(:channel_manager, :bot_token)]},
-      Reddit.Server,
-      ChannelManager.Scheduler
+      {ChannelManager.Api.Telegram, [method: :polling, token: config["telegram"]["token"]]},
+      {ChannelManager.Forwarder.Supervisor, forwarders}
     ]
 
-    opts = [strategy: :one_for_one, name: ChannelManager.Supervisor]
+    opts = [strategy: :one_for_one, name: ChannelManager]
     Supervisor.start_link(children, opts)
   end
 end

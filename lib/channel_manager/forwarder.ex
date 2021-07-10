@@ -1,4 +1,6 @@
 defmodule ChannelManager.Forwarder do
+  require Logger
+
   use TypedStruct
 
   typedstruct enforce: true do
@@ -20,10 +22,12 @@ defmodule ChannelManager.Forwarder do
     }
   end
 
-  def init(%ChannelManager.Forwarder{from: from, to: to} = config) do
+  def init(%ChannelManager.Forwarder{from: from, to: to, name: name} = config) do
     source_impl = ChannelManager.Forwarder.Source.impl_for(from)
     target_impl = ChannelManager.Forwarder.Target.impl_for(to)
     source_state = source_impl.init(from)
+
+    Logger.info("Initialized forwarder #{name}")
 
     %{
       config: config,
@@ -39,7 +43,8 @@ defmodule ChannelManager.Forwarder do
     }
   end
 
-  def run(%{source: source, target: target} = state) do
+  def run(%{source: source, target: target, config: %{name: name}} = state) do
+    Logger.debug("Running job for forwarder #{name}")
     {posts, source} = call_source(source)
     call_target(target, posts)
     %{state | source: source}

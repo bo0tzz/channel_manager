@@ -5,8 +5,16 @@ defmodule ChannelManager.Forwarder.Server do
     GenServer.start_link(__MODULE__, arg)
   end
 
+  def child_spec(%ChannelManager.Forwarder{name: name} = arg) do
+    %{
+      id: name,
+      start: {__MODULE__, :start_link, [arg]}
+    }
+  end
+
   def init(forwarder) do
     state = ChannelManager.Forwarder.init(forwarder)
+    schedule_next_job(0)
     {:ok, state}
   end
 
