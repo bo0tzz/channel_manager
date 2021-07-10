@@ -1,18 +1,54 @@
 telegram:
-  token: TELEGRAM_TOKEN
-  source_channel: -1
-  target_channel: -2
-  delete_approved: true
-  send_captions: true
-
+  token: foobar
 reddit:
-  client_id: CLIENT_ID
-  client_secret: CLIENT_SECRET
-  subreddits:
-    - aww
-    - pics
-  vote_threshold: 10
-  age_threshold: 86400
+  client_id: foo
+  client_secret: bar
+forwarders:
+  - name: reddit-to-telegram
+    from:
+      type: reddit
+      source:
+        - /r/antiwork
+        - /r/socialism
+      rules:
+        approve:
+          votes: 10
+        deny:
+          age: 86400
+        filter:
+          type: image
+    to:
+      type: telegram
+      target: screening-channel-id
+      captions: false
+      delete_chatter: true
 
-scheduler:
-  crontab: "*/10 * * * *" # Every 10 minutes
+  - name: telegram-screening
+    from:
+      type: telegram
+      source: screening-channel-id
+      rules:
+        approve:
+          age: 3600
+          votes: 1
+        filter:
+          type: image
+    to:
+      type: telegram
+      target: main-channel
+      captions: true # Of course, if there is no caption on the original, it'll still be empty
+
+  - name: RSS
+    from:
+      type: rss
+      source: https://fx.substack.com/feed
+      rules:
+        approve:
+          age: 0
+        filter:
+          text: world roundup
+    to:
+      type: telegram
+      target: main-channel
+      captions: true
+
