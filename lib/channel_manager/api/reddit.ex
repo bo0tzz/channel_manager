@@ -22,6 +22,7 @@ defmodule ChannelManager.Api.Reddit do
   defp get(token, url) do
     {:ok, response} = client(token) |> Tesla.get(url)
     body = Jason.decode!(response.body)
+
     Enum.map(body["data"]["children"], fn child -> child["data"] end)
     |> Enum.map(&ChannelManager.Model.Post.from_reddit/1)
     |> Enum.reject(&match?(nil, &1))

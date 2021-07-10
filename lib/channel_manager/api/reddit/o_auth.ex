@@ -7,6 +7,7 @@ defmodule ChannelManager.Api.Reddit.OAuth do
   ]
 
   alias ChannelManager.Api.Reddit.OAuth
+  # TODO: use GenServer
 
   def get_token(%OAuth{token: nil} = state) do
     state = request_token(state)

@@ -38,11 +38,15 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
   defp update_posts(%{auth: auth, known_posts: known_posts, seen_upto: seen_upto} = state) do
     {token, auth} = OAuth.get_token(auth)
 
-    known_posts = case known_posts do
-      [] -> []
-      posts -> Enum.map(posts, fn post -> post.id end)
-               |> Reddit.bulk(token)
-    end
+    known_posts =
+      case known_posts do
+        [] ->
+          []
+
+        posts ->
+          Enum.map(posts, fn post -> post.id end)
+          |> Reddit.bulk(token)
+      end
 
     Logger.debug("#{length(known_posts)} known reddit posts")
 
@@ -52,16 +56,18 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
 
     Logger.debug("Got #{length(new_posts)} new reddit posts")
 
-    {List.flatten([known_posts | new_posts]),
-     %{state | auth: auth, seen_upto: seen_upto}}
+    {List.flatten([known_posts | new_posts]), %{state | auth: auth, seen_upto: seen_upto}}
   end
 
   defp new_posts({subreddit, before}, token) do
     posts = Reddit.new(token, subreddit, before)
-    new_before = case posts do
-      [%ChannelManager.Model.Post{id: id} | _] -> id
-      _ -> before
-    end
+
+    new_before =
+      case posts do
+        [%ChannelManager.Model.Post{id: id} | _] -> id
+        _ -> before
+      end
+
     {posts, {subreddit, new_before}}
   end
 end

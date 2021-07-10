@@ -25,6 +25,7 @@ defmodule ChannelManager.Forwarder.Source do
 
   def impl_for(%ChannelManager.Forwarder.Source{type: "rss"}),
     do: ChannelManager.Forwarder.Source.RSS
+
   def impl_for(%ChannelManager.Forwarder.Source{type: "reddit"}),
     do: ChannelManager.Forwarder.Source.Reddit
 end
