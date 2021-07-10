@@ -7,6 +7,8 @@ defmodule ChannelManager.Forwarder.Target do
     field :options, %{String.t() => String.t()}, default: %{}
   end
 
+  @callback send(ChannelManager.Forwarder.Target.t(), ChannelManager.Model.Post.t()) :: none()
+
   def from_map(%{"type" => type, "target" => target} = map) do
     options = Map.get(map, "options", %{})
 
@@ -16,4 +18,7 @@ defmodule ChannelManager.Forwarder.Target do
       options: options
     }
   end
+
+  def impl_for(%ChannelManager.Forwarder.Target{type: "telegram"}),
+    do: ChannelManager.Forwarder.Target.Telegram
 end
