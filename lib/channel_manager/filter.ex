@@ -20,17 +20,17 @@ defmodule ChannelManager.Filter do
     {approved, kept}
   end
 
-  def filter_by(posts, rules), do: Enum.split_with(posts, &filter_with(&1, rules))
-  def filter_with(post, rules), do: Enum.any?(rules, &matches(&1, post))
+  defp filter_by(posts, rules), do: Enum.split_with(posts, &filter_with(&1, rules))
+  defp filter_with(post, rules), do: Enum.any?(rules, &matches(&1, post))
 
-  def matches({"votes", rule_votes}, %Post{votes: post_votes}), do: post_votes >= rule_votes
-  def matches({"type", rule_type}, %Post{type: post_type}), do: rule_type == post_type
-  def matches({"text", rule_text}, %Post{caption: caption}), do: caption =~ ~r/#{rule_text}/i
+  defp matches({"votes", rule_votes}, %Post{votes: post_votes}), do: post_votes >= rule_votes
+  defp matches({"type", rule_type}, %Post{type: post_type}), do: rule_type == post_type
+  defp matches({"text", rule_text}, %Post{caption: caption}), do: caption =~ ~r/#{rule_text}/i
 
-  def matches({"age", rule_age}, %Post{timestamp: timestamp}),
+  defp matches({"age", rule_age}, %Post{timestamp: timestamp}),
     do: System.os_time(:second) - timestamp >= rule_age
 
-  def matches({name, _}, _) do
+  defp matches({name, _}, _) do
     raise "Unknown rule: #{name}"
   end
 end

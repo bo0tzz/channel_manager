@@ -34,18 +34,12 @@ defmodule ChannelManager.Model.Post do
         :url => url,
         :updated => updated
       }) do
-    case DateTimeParser.parse_datetime(updated) do
-      {:ok, datetime} ->
-        %ChannelManager.Model.Post{
-          id: id,
-          caption: caption,
-          url: url,
-          timestamp: DateTime.to_unix(datetime),
-          type: "link"
-        }
-
-      error ->
-        error
-    end
+    %ChannelManager.Model.Post{
+      id: id,
+      caption: caption,
+      url: url,
+      timestamp: DateTime.to_unix(updated),
+      type: "link"
+    }
   end
 end

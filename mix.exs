@@ -29,6 +29,7 @@ defmodule ChannelManager.MixProject do
       {:quantum, "~> 3.0"},
       {:yaml_elixir, "~> 2.7"},
       {:date_time_parser, "~> 1.1"},
+      {:elixir_feed_parser, "~> 2.1"},
       {:typed_struct, "~> 0.2.1", runtime: false}
     ]
   end
