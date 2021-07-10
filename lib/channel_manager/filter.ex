@@ -9,9 +9,9 @@ defmodule ChannelManager.Filter do
       ) do
     Logger.debug("Filtering #{length(posts)} posts with ruleset #{inspect(rules)}")
 
-    [filtered, discarded] = filter_by(posts, filter)
-    [approved, rest] = filter_by(filtered, approve)
-    [denied, kept] = filter_by(rest, deny)
+    {filtered, discarded} = filter_by(posts, filter)
+    {approved, rest} = filter_by(filtered, approve)
+    {denied, kept} = filter_by(rest, deny)
 
     Logger.info(
       "Filtered posts: discarded #{length(discarded)}, approved #{length(approved)}, denied #{length(denied)}, kept #{length(kept)}"
