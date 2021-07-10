@@ -1,16 +1,22 @@
 defmodule ChannelManager.Filter do
-  alias ChannelManager.Filter.Rules
+  alias ChannelManager.Model.Post
 
   require Logger
 
-  def filter_posts(%Rules{approve: approve, deny: deny, filter: filter} = rules, posts) do
+  def filter_posts(
+        %ChannelManager.Filter.Rules{approve: approve, deny: deny, filter: filter} = rules,
+        posts
+      ) do
     Logger.debug("Filtering #{length(posts)} posts with ruleset #{inspect(rules)}")
 
     [filtered, discarded] = filter_by(posts, filter)
     [approved, rest] = filter_by(filtered, approve)
     [denied, kept] = filter_by(rest, deny)
 
-    Logger.info("Filtered posts: discarded #{length(discarded)}, approved #{length(approved)}, denied #{length(denied)}, kept #{length(kept)}")
+    Logger.info(
+      "Filtered posts: discarded #{length(discarded)}, approved #{length(approved)}, denied #{length(denied)}, kept #{length(kept)}"
+    )
+
     {approved, kept}
   end
 
