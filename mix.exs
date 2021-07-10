@@ -27,7 +27,9 @@ defmodule ChannelManager.MixProject do
       {:hackney, "~> 1.12"},
       {:jason, ">= 1.0.0"},
       {:quantum, "~> 3.0"},
-      {:yaml_elixir, "~> 2.7"}
+      {:yaml_elixir, "~> 2.7"},
+      {:date_time_parser, "~> 1.1"},
+      {:typed_struct, "~> 0.2.1", runtime: false}
     ]
   end
 end

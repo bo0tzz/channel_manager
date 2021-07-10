@@ -18,10 +18,11 @@ defmodule Reddit do
       Application.fetch_env!(:channel_manager, :subreddits)
       |> Enum.map(&{&1, ""})
 
-    oauth = Reddit.Api.OAuth.request_token(%Reddit.Api.OAuth{
-      client_id: Application.fetch_env!(:channel_manager, :reddit_client_id),
-      client_secret: Application.fetch_env!(:channel_manager, :reddit_client_secret)
-    })
+    oauth =
+      Reddit.Api.OAuth.request_token(%Reddit.Api.OAuth{
+        client_id: Application.fetch_env!(:channel_manager, :reddit_client_id),
+        client_secret: Application.fetch_env!(:channel_manager, :reddit_client_secret)
+      })
 
     Logger.info("Initialized Reddit scraper")
 
@@ -55,7 +56,10 @@ defmodule Reddit do
     kept = length(keep)
     sent = length(send)
     discarded = length(all_posts) - kept - sent
-    Logger.info("Sending #{length(send)} posts, keeping #{length(keep)}, discarding #{discarded}. (#{length(posts)} new)")
+
+    Logger.info(
+      "Sending #{length(send)} posts, keeping #{length(keep)}, discarding #{discarded}. (#{length(posts)} new)"
+    )
 
     Enum.each(send, &send_to_channel/1)
     %{state | subreddits: subreddits, known_posts: keep}

@@ -23,6 +23,6 @@ config :channel_manager,
 crontab = yaml["scheduler"]["crontab"]
 
 config :channel_manager, ChannelManager.Scheduler,
-       jobs: [
-         {crontab, {Reddit, :trigger_scan, []}}
-       ]
+  jobs: [
+    {crontab, {Reddit, :trigger_scan, []}}
+  ]
