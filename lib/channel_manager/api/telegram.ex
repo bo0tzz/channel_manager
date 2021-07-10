@@ -17,22 +17,22 @@ defmodule ChannelManager.Api.Telegram do
   def send_post(post, target, true), do: send_post(post, target)
   def send_post(post, target, false), do: send_post(%Post{post | caption: ""}, target)
 
-  def send_post(%Post{type: "link", url: url, caption: caption} = post, target) do
+  defp send_post(%Post{type: "link", url: url, caption: caption} = post, target) do
     message = caption <> "\n" <> url
 
     case ExGram.send_message(target, message, bot: bot()) do
       {:error, e} -> Logger.error("Failed to send post #{inspect(post)}: #{inspect(e)}")
-      {:ok, _} -> nil
+      {:ok, result} -> result
     end
   end
 
-  def send_post(%Post{type: "image", url: url, caption: caption} = post, target) do
+  defp send_post(%Post{type: "image", url: url, caption: caption} = post, target) do
     case ExGram.send_photo(target, url, bot: bot(), caption: caption) do
       {:error, e} -> Logger.error("Failed to send post #{inspect(post)}: #{inspect(e)}")
-      {:ok, _} -> nil
+      {:ok, result} -> result
     end
   end
 
-  def send_post(%Post{type: "rich:video"} = post, target),
+  defp send_post(%Post{type: "rich:video"} = post, target),
     do: send_post(%{post | type: "link"}, target)
 end
