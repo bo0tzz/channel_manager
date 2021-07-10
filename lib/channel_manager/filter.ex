@@ -18,7 +18,7 @@ defmodule ChannelManager.Filter do
     {denied, rest} = filter_by(filtered, deny)
     {approved, kept} = filter_by(rest, approve)
 
-    Logger.info(
+    Logger.debug(
       "Filtered posts: discarded #{length(discarded)}, approved #{length(approved)}, denied #{length(denied)}, kept #{length(kept)}"
     )
 

@@ -44,7 +44,7 @@ defmodule ChannelManager.Forwarder do
   end
 
   def run(%{source: source, target: target, config: %{name: name}} = state) do
-    Logger.debug("Running job for forwarder #{name}")
+    Logger.info("Running forwarder #{name}")
     {posts, source} = call_source(source)
     call_target(target, posts)
     %{state | source: source}

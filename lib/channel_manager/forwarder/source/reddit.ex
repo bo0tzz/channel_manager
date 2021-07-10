@@ -7,19 +7,21 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
   @behaviour Source
 
   @impl Source
-  def init(%Source{type: "reddit", source: subreddits}) do
+  def init(%Source{type: "reddit", source: subreddits} = cfg) do
     seen_upto =
       Enum.map(subreddits, &String.replace(&1, ~r"^/?r/", ""))
       |> Enum.map(&String.trim/1)
       |> Enum.map(&{&1, ""})
 
-    {discarded, seen_upto} = load_new(seen_upto)
-    Logger.debug("Discarding #{length(discarded)} reddit posts on initialization")
-
-    %{
+    state = %{
       known_posts: [],
       seen_upto: seen_upto
     }
+
+    {discarded, state} = get_posts(cfg, state)
+    Logger.debug("Discarding #{length(discarded)} reddit posts on initialization")
+
+    state
   end
 
   @impl Source
