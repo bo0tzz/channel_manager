@@ -9,10 +9,11 @@ defmodule ChannelManager.Filter do
       ) do
     Logger.debug("Filtering #{length(posts)} posts with ruleset #{inspect(rules)}")
 
-    {filtered, discarded} = case filter do
-      %{} -> {posts, []}
-      f -> filter_by(posts, f)
-    end
+    {filtered, discarded} =
+      case filter do
+        %{} -> {posts, []}
+        f -> filter_by(posts, f)
+      end
 
     {denied, rest} = filter_by(filtered, deny)
     {approved, kept} = filter_by(rest, approve)
