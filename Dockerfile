@@ -1,14 +1,16 @@
-FROM bitwalker/alpine-elixir:latest AS build
+FROM elixir:alpine AS build
 
 ENV MIX_ENV=prod
 
 WORKDIR /build/
+RUN mix local.hex --force
+RUN mix local.rebar --force
 
 COPY . .
 RUN mix deps.get
 RUN mix release
 
-FROM bitwalker/alpine-elixir:latest AS run
+FROM elixir:alpine AS run
 
 RUN apk add tzdata
 ENV TZ Europe/Amsterdam
