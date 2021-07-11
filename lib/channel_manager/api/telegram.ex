@@ -1,5 +1,5 @@
 defmodule ChannelManager.Api.Telegram do
-  alias ChannelManager.Model.Post
+  alias ChannelManager.Api.Telegram.Util
 
   require Logger
 
@@ -17,7 +17,7 @@ defmodule ChannelManager.Api.Telegram do
 
   def send_post(post, target, opts) do
     opts = Map.merge(@default_opts, opts)
-    params = build_params(post, opts)
+    params = Util.build_params(post, opts)
     send_post(target, params)
   end
 
@@ -34,38 +34,4 @@ defmodule ChannelManager.Api.Telegram do
       {:ok, result} -> result
     end
   end
-
-  defp build_params(%Post{type: "link", url: url} = post, opts) do
-    text = get_caption(post, opts) <> "\n" <> url
-
-    Map.merge(
-      common_params(post, opts),
-      %{
-        text: text
-      }
-    )
-  end
-
-  defp build_params(%Post{type: "rich:video"} = post, opts),
-    do: build_params(%{post | type: "link"}, opts)
-
-  defp build_params(%Post{type: "image", url: url} = post, opts) do
-    Map.merge(
-      common_params(post, opts),
-      %{
-        photo: url,
-        caption: get_caption(post, opts)
-      }
-    )
-  end
-
-  defp common_params(%Post{}, _opts) do
-    %{
-      bot: bot()
-      # TODO: vote button
-    }
-  end
-
-  defp get_caption(_, %{"captions" => false}), do: ""
-  defp get_caption(%Post{caption: caption}, %{"captions" => true}), do: caption
 end
