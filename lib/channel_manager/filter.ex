@@ -22,7 +22,7 @@ defmodule ChannelManager.Filter do
       "Filtered posts: discarded #{length(discarded)}, approved #{length(approved)}, denied #{length(denied)}, kept #{length(kept)}"
     )
 
-    {approved, kept}
+    {approved, kept, denied}
   end
 
   defp filter_by(posts, rules), do: Enum.split_with(posts, &filter_with(&1, rules))

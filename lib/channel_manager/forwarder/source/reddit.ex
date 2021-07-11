@@ -27,7 +27,7 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
   @impl Source
   def get_posts(%Source{type: "reddit", rules: rules}, state) do
     {posts, state} = update_posts(state)
-    {approved, known_posts} = ChannelManager.Filter.filter_posts(rules, posts)
+    {approved, known_posts, _} = ChannelManager.Filter.filter_posts(rules, posts)
     Logger.debug("Approved #{length(approved)} reddit posts, remembering #{length(known_posts)}")
 
     {approved, %{state | known_posts: known_posts}}

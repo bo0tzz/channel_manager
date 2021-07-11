@@ -11,7 +11,7 @@ defmodule ChannelManager.Forwarder.Source.RSS do
   def get_posts(%Source{type: "rss", rules: rules} = config, state) do
     posts = read_feed(config)
     {posts, state} = remove_seen(posts, state)
-    {approved, _} = ChannelManager.Filter.filter_posts(rules, posts)
+    {approved, _, _} = ChannelManager.Filter.filter_posts(rules, posts)
 
     {approved, state}
   end
