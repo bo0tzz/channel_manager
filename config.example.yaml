@@ -23,10 +23,11 @@ forwarders:
       target: screening-channel-id
       options:
         captions: false
-        delete_chatter: true
+        vote_button: true
+        deny_button: true
 
   - name: telegram-screening
-    schedule: "*/1 * * * *" # Every minute
+    interval: 1
     from:
       type: telegram
       source: screening-channel-id
