@@ -10,6 +10,7 @@ defmodule ChannelManager.Forwarder.Source do
   @opaque state :: any()
 
   @callback init(ChannelManager.Forwarder.Source.t()) :: state()
+  # TODO: Refactor to only have state()
   @callback get_posts(ChannelManager.Forwarder.Source.t(), state()) ::
               {[ChannelManager.Model.Post.t()], state()}
 
