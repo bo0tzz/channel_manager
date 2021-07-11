@@ -53,7 +53,7 @@ defmodule ChannelManager.Api.Telegram.Util do
   def build_keyboard(%Post{votes: votes}, %{"vote_button" => true, "deny_button" => false}) do
     keyboard :inline do
       row do
-        button vote_button_text(votes), callback_data: votes
+        button(vote_button_text(votes), callback_data: votes)
       end
     end
   end
@@ -61,7 +61,7 @@ defmodule ChannelManager.Api.Telegram.Util do
   def build_keyboard(_, %{"vote_button" => false, "deny_button" => true}) do
     keyboard :inline do
       row do
-        button "Remove post", callback_data: "delete"
+        button("Remove post", callback_data: "delete")
       end
     end
   end
@@ -69,10 +69,11 @@ defmodule ChannelManager.Api.Telegram.Util do
   def build_keyboard(%Post{votes: votes}, %{"vote_button" => true, "deny_button" => true}) do
     keyboard :inline do
       row do
-        button vote_button_text(votes), callback_data: votes
+        button(vote_button_text(votes), callback_data: votes)
       end
+
       row do
-        button "Remove post", callback_data: "delete"
+        button("Remove post", callback_data: "delete")
       end
     end
   end
@@ -80,7 +81,8 @@ defmodule ChannelManager.Api.Telegram.Util do
   defp vote_button_text(0), do: "Vote"
   defp vote_button_text(votes), do: "Votes: #{votes}"
 
-  def update_keyboard_votes(keyboard, votes), do: update_in(keyboard[:inline_keyboard], &update_keyboard_rows(&1, votes))
+  def update_keyboard_votes(keyboard, votes),
+    do: update_in(keyboard[:inline_keyboard], &update_keyboard_rows(&1, votes))
 
   def update_keyboard_rows(rows, votes), do: Enum.map(rows, &update_keyboard_row(&1, votes))
   def update_keyboard_row(row, votes), do: Enum.map(row, &update_keyboard_button(&1, votes))

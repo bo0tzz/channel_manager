@@ -46,15 +46,23 @@ defmodule ChannelManager.Api.Telegram do
 
   defp send_post(target, %{photo: photo} = params) do
     case ExGram.send_photo(target, photo, Keyword.new(params)) do
-      {:error, e} -> Logger.error("Failed to send post #{inspect(params)}: #{inspect(e)}")
-      {:ok, result} -> result
+      {:error, e} ->
+        Logger.error("Failed to send post #{inspect(params)}: #{inspect(e)}")
+        {:error}
+
+      ok ->
+        ok
     end
   end
 
   defp send_post(target, %{text: text} = params) do
     case ExGram.send_message(target, text, Keyword.new(params)) do
-      {:error, e} -> Logger.error("Failed to send post #{inspect(params)}: #{inspect(e)}")
-      {:ok, result} -> result
+      {:error, e} ->
+        Logger.error("Failed to send post #{inspect(params)}: #{inspect(e)}")
+        {:error}
+
+      ok ->
+        ok
     end
   end
 end
