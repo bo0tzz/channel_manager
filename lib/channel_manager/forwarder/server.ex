@@ -12,7 +12,11 @@ defmodule ChannelManager.Forwarder.Server do
     }
   end
 
-  def init(forwarder) do
+  def child_spec(arg) do
+    child_spec(ChannelManager.Forwarder.from_map(arg))
+  end
+
+  def init(%ChannelManager.Forwarder{} = forwarder) do
     state = ChannelManager.Forwarder.init(forwarder)
     schedule_next_job(0)
     {:ok, state}
@@ -26,7 +30,7 @@ defmodule ChannelManager.Forwarder.Server do
 
   defp schedule_next_job(interval) do
     # Minutes to ms
-    time = interval * 60 * 1000
+    time = round(interval * 60 * 1000)
     # In 60 seconds
     Process.send_after(self(), :run, time)
   end
