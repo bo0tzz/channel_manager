@@ -28,11 +28,6 @@ defmodule ChannelManager.Api.Telegram.Server do
   end
 
   @impl true
-  def handle_call({:get_all, chat_id}, _, state) do
-    {:reply, Messages.get_all(state, chat_id), state}
-  end
-
-  @impl true
   def handle_cast({:update_votes, id, votes}, state) do
     {:noreply, Messages.update_votes(state, id, votes), {:continue, :save}}
   end
@@ -45,6 +40,11 @@ defmodule ChannelManager.Api.Telegram.Server do
   @impl true
   def handle_cast({:untrack_chat, chat_id}, state) do
     {:noreply, Messages.untrack_chat(state, chat_id)}
+  end
+
+  @impl true
+  def handle_call({:get_all, chat_id}, _, state) do
+    {:reply, Messages.get_all(state, chat_id), state}
   end
 
   @impl true
