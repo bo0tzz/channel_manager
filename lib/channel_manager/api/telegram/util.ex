@@ -35,30 +35,65 @@ defmodule ChannelManager.Api.Telegram.Util do
     nil
   end
 
-  defp common_params(%Post{}, %{"vote_button" => false}),
-    do: %{
+  defp common_params(%Post{} = post, opts) do
+    params = %{
       bot: ChannelManager.Api.Telegram.bot()
     }
 
-  defp common_params(%Post{votes: votes}, %{"vote_button" => true}),
-    do: %{
-      bot: ChannelManager.Api.Telegram.bot(),
-      reply_markup: vote_keyboard(votes)
-    }
+    keyboard = build_keyboard(post, opts)
 
-  def vote_keyboard(votes) do
-    button_text =
-      case votes do
-        0 -> "Vote"
-        n -> "Votes: #{n}"
-      end
+    case has_content(keyboard) do
+      false -> params
+      true -> Map.put(params, :reply_markup, keyboard)
+    end
+  end
 
+  def build_keyboard(_, %{"vote_button" => false, "deny_button" => false}), do: nil
+
+  def build_keyboard(%Post{votes: votes}, %{"vote_button" => true, "deny_button" => false}) do
     keyboard :inline do
       row do
-        button(button_text, callback_data: votes)
+        button vote_button_text(votes), callback_data: votes
       end
     end
   end
+
+  def build_keyboard(_, %{"vote_button" => false, "deny_button" => true}) do
+    keyboard :inline do
+      row do
+        button "Remove post", callback_data: "delete"
+      end
+    end
+  end
+
+  def build_keyboard(%Post{votes: votes}, %{"vote_button" => true, "deny_button" => true}) do
+    keyboard :inline do
+      row do
+        button vote_button_text(votes), callback_data: votes
+      end
+      row do
+        button "Remove post", callback_data: "delete"
+      end
+    end
+  end
+
+  defp vote_button_text(0), do: "Vote"
+  defp vote_button_text(votes), do: "Votes: #{votes}"
+
+  def update_keyboard_votes(keyboard, votes), do: update_in(keyboard[:inline_keyboard], &update_keyboard_rows(&1, votes))
+
+  def update_keyboard_rows(rows, votes), do: Enum.map(rows, &update_keyboard_row(&1, votes))
+  def update_keyboard_row(row, votes), do: Enum.map(row, &update_keyboard_button(&1, votes))
+
+  def update_keyboard_button(%{text: "Vote" <> _} = button, votes),
+    do: %{button | text: "Votes: #{votes}", callback_data: votes}
+
+  def update_keyboard_button(button, _), do: button
+
+  defp has_content(%ExGram.Model.InlineKeyboardMarkup{inline_keyboard: []}), do: false
+  defp has_content(%ExGram.Model.InlineKeyboardMarkup{inline_keyboard: [[]]}), do: false
+  defp has_content(nil), do: false
+  defp has_content(_), do: true
 
   defp get_caption(_, %{"captions" => false}), do: ""
   defp get_caption(%Post{caption: nil}, _), do: ""

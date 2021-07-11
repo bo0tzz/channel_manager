@@ -5,7 +5,7 @@ defmodule ChannelManager.Api.Telegram do
   require Logger
 
   @bot :channel_manager
-  @default_opts %{"captions" => false, "vote_button" => false}
+  @default_opts %{"captions" => false, "vote_button" => false, "deny_button" => false}
 
   use ExGram.Bot,
     name: @bot,
@@ -16,16 +16,24 @@ defmodule ChannelManager.Api.Telegram do
 
   middleware(ExGram.Middleware.IgnoreUsername)
 
-  def handle({:callback_query, %{data: data, message: message} = query}, context) do
+  def handle({:callback_query, %{data: "delete", message: message}}, context) do
+    id = Util.id(message)
+    Messages.remove(id)
+    delete(context, message)
+  end
+
+  def handle(
+        {:callback_query, %{data: data, message: %{reply_markup: keyboard} = message} = query},
+        context
+      ) do
     {old_votes, _} = Integer.parse(data)
     new_votes = old_votes + 1
     id = Util.id(message)
     Messages.update_votes(id, new_votes)
-    new_keyboard = Util.vote_keyboard(new_votes)
-    edit(context, :markup, query, reply_markup: new_keyboard)
+    new_keyboard = Util.update_keyboard_votes(keyboard, new_votes)
+    reply_markup = struct(ExGram.Model.InlineKeyboardMarkup, new_keyboard)
+    edit(context, :markup, query, reply_markup: reply_markup)
   end
-
-  # TODO: Handle deletes and forward to Messages
 
   def send_post(post, target, opts) do
     opts = Map.merge(@default_opts, opts)
