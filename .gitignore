@@ -31,3 +31,4 @@ channel_manager-*.tar
 *.iml
 .env
 config.yaml
+*.db
