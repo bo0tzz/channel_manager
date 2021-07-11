@@ -47,6 +47,7 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
     Logger.debug("#{length(known_posts)} known reddit posts")
 
     {new_posts, seen_upto} = load_new(seen_upto)
+    new_posts = List.flatten(new_posts)
 
     Logger.debug("Got #{length(new_posts)} new reddit posts")
 

@@ -3,6 +3,7 @@ defmodule ChannelManager.Api.Telegram.Messages do
 
   alias ChannelManager.Api.Telegram.Messages
   alias ChannelManager.Api.Telegram.Server
+  alias ChannelManager.Model.Post
 
   defstruct [
     :storage_path,
@@ -11,10 +12,10 @@ defmodule ChannelManager.Api.Telegram.Messages do
   ]
 
   def add(%ExGram.Model.Message{} = message),
-    do: add(ChannelManager.Model.Post.from_telegram(message))
+    do: add(Post.from_telegram(message))
 
   def add(message), do: GenServer.cast(Server, {:add, message})
-  def remove(%ChannelManager.Model.Post{id: id}), do: remove(id)
+  def remove(%Post{id: id}), do: remove(id)
   def remove(id), do: GenServer.cast(Server, {:remove, id})
   def get_all(chat_id), do: GenServer.call(Server, {:get_all, chat_id})
   def update_votes(id, votes), do: GenServer.cast(Server, {:update_votes, id, votes})
@@ -29,15 +30,15 @@ defmodule ChannelManager.Api.Telegram.Messages do
     }
   end
 
-  def add(%Messages{messages: messages, tracked_chats: tracked_chats} = state, message) do
-    case message.id in tracked_chats do
+  def add(%Messages{messages: messages, tracked_chats: tracked_chats} = state, %Post{id: {chat, _}} = message) do
+    case chat in tracked_chats do
       false -> state
       true -> %{state | messages: Map.put(messages, message.id, message)}
     end
   end
 
   def remove(%Messages{messages: messages} = state, id),
-    do: %{state | messages: Map.drop(messages, id)}
+    do: %{state | messages: Map.drop(messages, [id])}
 
   def get_all(%Messages{messages: messages}, chat_id) do
     :maps.filter(&match?({{^chat_id, _}, _}, {&1, &2}), messages)
@@ -51,7 +52,7 @@ defmodule ChannelManager.Api.Telegram.Messages do
           messages
 
         true ->
-          Map.update!(messages, id, fn post -> %ChannelManager.Model.Post{post | votes: votes} end)
+          Map.update!(messages, id, fn post -> %Post{post | votes: votes} end)
       end
 
     %{state | messages: messages}
