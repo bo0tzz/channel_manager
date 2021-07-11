@@ -6,38 +6,60 @@ defmodule ChannelManager.Api.Telegram.Messages do
 
   defstruct [
     :storage_path,
-    :messages
+    :messages,
+    :tracked_chats
   ]
 
+  def add(%ExGram.Model.Message{} = message),
+    do: add(ChannelManager.Model.Post.from_telegram(message))
+
   def add(message), do: GenServer.cast(Server, {:add, message})
-  def remove(message), do: GenServer.cast(Server, {:remove, message})
+  def remove(%ChannelManager.Model.Post{id: id}), do: remove(id)
+  def remove(id), do: GenServer.cast(Server, {:remove, id})
   def get_all(chat_id), do: GenServer.call(Server, {:get_all, chat_id})
+  def track_chat(chat_id), do: GenServer.cast(Server, {:track_chat, chat_id})
+  def untrack_chat(chat_id), do: GenServer.cast(Server, {:untrack_chat, chat_id})
 
   def init(%{storage_path: path}) do
     %Messages{
       storage_path: path,
-      messages: load(path)
+      messages: load(path),
+      tracked_chats: MapSet.new()
     }
   end
 
-  def add(state, %ExGram.Model.Message{} = message), do: add(state, Map.from_struct(message))
-
-  def add(%Messages{messages: messages} = state, message) do
-    message = :maps.filter(fn _, v -> v != nil end, message)
-    messages = Map.put(messages, key(message), message)
-    # TODO: Call registry by chat ID, notify source listeners
-
-    %{state | messages: messages}
+  def add(%Messages{messages: messages, tracked_chats: tracked_chats} = state, message) do
+    case message.id in tracked_chats do
+      false -> state
+      true -> %{state | messages: Map.put(messages, message.id, message)}
+    end
   end
 
-  def remove(%Messages{messages: messages} = state, message),
-    do: %{state | messages: Map.drop(messages, key(message))}
+  def remove(%Messages{messages: messages} = state, id),
+    do: %{state | messages: Map.drop(messages, id)}
 
   def get_all(%Messages{messages: messages}, chat_id) do
     :maps.filter(&match?({^chat_id, _}, &1), messages)
   end
 
-  defp key(%{message: %{message_id: message_id, chat: %{id: chat_id}}}), do: {chat_id, message_id}
+  def update_votes(%Messages{messages: messages} = state, id, votes) do
+    messages =
+      case Map.has_key?(messages, id) do
+        false ->
+          messages
+
+        true ->
+          Map.update!(messages, id, fn post -> %ChannelManager.Model.Post{post | votes: votes} end)
+      end
+
+    %{state | messages: messages}
+  end
+
+  def track_chat(%Messages{tracked_chats: tracked_chats} = state, id),
+    do: %{state | tracked_chats: MapSet.put(tracked_chats, id)}
+
+  def untrack_chat(%Messages{tracked_chats: tracked_chats} = state, id),
+    do: %{state | tracked_chats: MapSet.delete(tracked_chats, id)}
 
   def save(%Messages{storage_path: path, messages: messages} = state) do
     Logger.debug("Saving state: #{inspect(state)}")
