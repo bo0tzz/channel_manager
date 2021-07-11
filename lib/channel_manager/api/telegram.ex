@@ -4,6 +4,7 @@ defmodule ChannelManager.Api.Telegram do
   require Logger
 
   @bot :channel_manager
+  @default_opts %{"captions" => false, "vote_button" => false}
 
   use ExGram.Bot,
     name: @bot,
@@ -14,25 +15,57 @@ defmodule ChannelManager.Api.Telegram do
 
   middleware(ExGram.Middleware.IgnoreUsername)
 
-  def send_post(post, target, true), do: send_post(post, target)
-  def send_post(post, target, false), do: send_post(%Post{post | caption: ""}, target)
+  def send_post(post, target, opts) do
+    opts = Map.merge(@default_opts, opts)
+    params = build_params(post, opts)
+    send_post(target, params)
+  end
 
-  defp send_post(%Post{type: "link", url: url, caption: caption} = post, target) do
-    message = caption <> "\n" <> url
-
-    case ExGram.send_message(target, message, bot: bot()) do
-      {:error, e} -> Logger.error("Failed to send post #{inspect(post)}: #{inspect(e)}")
+  defp send_post(target, %{photo: photo} = params) do
+    case ExGram.send_photo(target, photo, Keyword.new(params)) do
+      {:error, e} -> Logger.error("Failed to send post #{inspect(params)}: #{inspect(e)}")
       {:ok, result} -> result
     end
   end
 
-  defp send_post(%Post{type: "image", url: url, caption: caption} = post, target) do
-    case ExGram.send_photo(target, url, bot: bot(), caption: caption) do
-      {:error, e} -> Logger.error("Failed to send post #{inspect(post)}: #{inspect(e)}")
+  defp send_post(target, %{text: text} = params) do
+    case ExGram.send_message(target, text, Keyword.new(params)) do
+      {:error, e} -> Logger.error("Failed to send post #{inspect(params)}: #{inspect(e)}")
       {:ok, result} -> result
     end
   end
 
-  defp send_post(%Post{type: "rich:video"} = post, target),
-    do: send_post(%{post | type: "link"}, target)
+  defp build_params(%Post{type: "link", url: url} = post, opts) do
+    text = get_caption(post, opts) <> "\n" <> url
+
+    Map.merge(
+      common_params(post, opts),
+      %{
+        text: text
+      }
+    )
+  end
+
+  defp build_params(%Post{type: "rich:video"} = post, opts),
+    do: build_params(%{post | type: "link"}, opts)
+
+  defp build_params(%Post{type: "image", url: url} = post, opts) do
+    Map.merge(
+      common_params(post, opts),
+      %{
+        photo: url,
+        caption: get_caption(post, opts)
+      }
+    )
+  end
+
+  defp common_params(%Post{}, _opts) do
+    %{
+      bot: bot()
+      # TODO: vote button
+    }
+  end
+
+  defp get_caption(_, %{"captions" => false}), do: ""
+  defp get_caption(%Post{caption: caption}, %{"captions" => true}), do: caption
 end

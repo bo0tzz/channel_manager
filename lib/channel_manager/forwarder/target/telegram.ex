@@ -6,6 +6,8 @@ defmodule ChannelManager.Forwarder.Target.Telegram do
 
   @impl Target
   def send(%Target{type: "telegram", target: target, options: options}, post) do
-    ChannelManager.Api.Telegram.send_post(post, target, Map.get(options, "captions", false))
+    message = ChannelManager.Api.Telegram.send_post(post, target, options)
+
+    ChannelManager.Api.Telegram.Messages.add(message)
   end
 end
