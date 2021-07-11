@@ -1,4 +1,6 @@
 defmodule ChannelManager.Api.Telegram.Util do
+  require Logger
+
   import ExGram.Dsl.Keyboard
   alias ChannelManager.Model.Post
 
@@ -28,16 +30,21 @@ defmodule ChannelManager.Api.Telegram.Util do
     )
   end
 
-  defp common_params(%Post{votes: votes}, opts) do
-    %{
-      bot: ChannelManager.Api.Telegram.bot(),
-      reply_markup: vote_keyboard(votes, opts)
-    }
+  def build_params(%Post{type: type}, _) do
+    Logger.warn("Post type #{type} is not supported")
+    nil
   end
 
-  defp vote_keyboard(_, %{"vote_button" => false}), do: nil
+  defp common_params(%Post{}, %{"vote_button" => false}),
+    do: %{
+      bot: ChannelManager.Api.Telegram.bot()
+    }
 
-  defp vote_keyboard(votes, _), do: vote_keyboard(votes)
+  defp common_params(%Post{votes: votes}, %{"vote_button" => true}),
+    do: %{
+      bot: ChannelManager.Api.Telegram.bot(),
+      reply_markup: vote_keyboard(votes)
+    }
 
   def vote_keyboard(votes) do
     button_text =
@@ -54,5 +61,6 @@ defmodule ChannelManager.Api.Telegram.Util do
   end
 
   defp get_caption(_, %{"captions" => false}), do: ""
+  defp get_caption(%Post{caption: nil}, _), do: ""
   defp get_caption(%Post{caption: caption}, %{"captions" => true}), do: caption
 end

@@ -25,10 +25,15 @@ defmodule ChannelManager.Api.Telegram do
     edit(context, :markup, query, reply_markup: new_keyboard)
   end
 
+  # TODO: Handle deletes and forward to Messages
+
   def send_post(post, target, opts) do
     opts = Map.merge(@default_opts, opts)
-    params = Util.build_params(post, opts)
-    send_post(target, params)
+
+    case Util.build_params(post, opts) do
+      nil -> nil
+      params -> send_post(target, params)
+    end
   end
 
   defp send_post(target, %{photo: photo} = params) do

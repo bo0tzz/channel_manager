@@ -11,8 +11,9 @@ defmodule ChannelManager.Api.Telegram.Messages do
     :tracked_chats
   ]
 
-  def add(%ExGram.Model.Message{} = message),
-    do: add(Post.from_telegram(message))
+  def add(%ExGram.Model.Message{} = message) do
+    add(Post.from_telegram(message))
+  end
 
   def add(message), do: GenServer.cast(Server, {:add, message})
   def remove(%Post{id: id}), do: remove(id)
@@ -30,7 +31,10 @@ defmodule ChannelManager.Api.Telegram.Messages do
     }
   end
 
-  def add(%Messages{messages: messages, tracked_chats: tracked_chats} = state, %Post{id: {chat, _}} = message) do
+  def add(
+        %Messages{messages: messages, tracked_chats: tracked_chats} = state,
+        %Post{id: {chat, _}} = message
+      ) do
     case chat in tracked_chats do
       false -> state
       true -> %{state | messages: Map.put(messages, message.id, message)}

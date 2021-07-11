@@ -21,7 +21,12 @@ defmodule ChannelManager.Api.Reddit do
 
   defp get(url) do
     {:ok, response} = client() |> Tesla.get(url)
-    body = Jason.decode!(response.body)
+
+    {:ok, body} =
+      case response do
+        r when r.status in 200..299 -> Jason.decode(response.body)
+        r -> {:error, r.status, r.body}
+      end
 
     Enum.map(body["data"]["children"], fn child -> child["data"] end)
     |> Enum.map(&ChannelManager.Model.Post.from_reddit/1)

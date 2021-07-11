@@ -12,12 +12,12 @@ defmodule ChannelManager.Model.Post do
     field :type, String.t()
   end
 
-  # TODO: parser with vote count
   def from_telegram(%{
         chat: %{id: chat_id},
         date: timestamp,
         message_id: message_id,
-        text: text
+        text: text,
+        photo: nil
       }) do
     %ChannelManager.Model.Post{
       id: {chat_id, message_id},
@@ -34,7 +34,8 @@ defmodule ChannelManager.Model.Post do
         chat: %{id: chat_id},
         date: timestamp,
         message_id: message_id,
-        photo: [%{file_id: url} | _]
+        photo: [%{file_id: url} | _],
+        text: nil
       }) do
     %ChannelManager.Model.Post{
       id: {chat_id, message_id},

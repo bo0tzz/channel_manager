@@ -36,7 +36,11 @@ defmodule ChannelManager.Api.Reddit.OAuth do
       client(state)
       |> Tesla.post("/api/v1/access_token", %{grant_type: :client_credentials})
 
-    body = Jason.decode!(response.body)
+    {:ok, body} =
+      case response do
+        r when r.status in 200..299 -> Jason.decode(response.body)
+        r -> {:error, r.status, r.body}
+      end
 
     token = body["access_token"]
     expires_in = body["expires_in"]

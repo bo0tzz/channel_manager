@@ -11,7 +11,7 @@ defmodule ChannelManager.Filter do
 
     {filtered, discarded} =
       case filter do
-        %{} -> {posts, []}
+        f when f == %{} -> {posts, []}
         f -> filter_by(posts, f)
       end
 

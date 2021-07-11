@@ -14,6 +14,7 @@ defmodule ChannelManager.Forwarder.Source.Telegram do
   @impl Source
   def get_posts(%Source{type: "telegram", source: chat_id, rules: rules}, state) do
     posts = ChannelManager.Api.Telegram.Messages.get_all(chat_id)
+
     {approved, _, denied} = ChannelManager.Filter.filter_posts(rules, posts)
 
     Enum.each(denied, &ChannelManager.Api.Telegram.Messages.remove/1)
