@@ -10,9 +10,7 @@ defmodule ChannelManager.Forwarder.Source do
   @opaque state :: any()
 
   @callback init(ChannelManager.Forwarder.Source.t()) :: state()
-  # TODO: Refactor to only have state()
-  @callback get_posts(ChannelManager.Forwarder.Source.t(), state()) ::
-              {[ChannelManager.Model.Post.t()], state()}
+  @callback get_posts(state()) :: {[ChannelManager.Model.Post.t()], state()}
 
   def from_map(%{"type" => type, "source" => source, "rules" => rules}) do
     rules = ChannelManager.Filter.Rules.from_map(rules)

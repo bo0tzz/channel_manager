@@ -3,12 +3,12 @@ defmodule ChannelManager.Forwarder.Source.RSS do
   @behaviour Source
 
   @impl Source
-  def init(%Source{type: "rss"}) do
-    %{seen_upto: nil}
+  def init(%Source{type: "rss"} = cfg) do
+    %{seen_upto: nil, config: cfg}
   end
 
   @impl Source
-  def get_posts(%Source{type: "rss", rules: rules} = config, state) do
+  def get_posts(%{config: %Source{type: "rss", rules: rules} = config} = state) do
     posts = read_feed(config)
     {posts, state} = remove_seen(posts, state)
     {approved, _, _} = ChannelManager.Filter.filter_posts(rules, posts)

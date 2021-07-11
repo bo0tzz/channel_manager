@@ -33,7 +33,6 @@ defmodule ChannelManager.Forwarder do
       config: config,
       source: %{
         impl: source_impl,
-        config: from,
         state: source_state
       },
       target: %{
@@ -53,11 +52,10 @@ defmodule ChannelManager.Forwarder do
   defp call_source(
          %{
            impl: source_impl,
-           config: source_config,
            state: source_state
          } = state
        ) do
-    {posts, source_state} = source_impl.get_posts(source_config, source_state)
+    {posts, source_state} = source_impl.get_posts(source_state)
     {posts, %{state | state: source_state}}
   end
 

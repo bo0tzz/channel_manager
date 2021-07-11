@@ -15,17 +15,18 @@ defmodule ChannelManager.Forwarder.Source.Reddit do
 
     state = %{
       known_posts: [],
-      seen_upto: seen_upto
+      seen_upto: seen_upto,
+      config: cfg
     }
 
-    {discarded, state} = get_posts(cfg, state)
+    {discarded, state} = get_posts(state)
     Logger.debug("Discarding #{length(discarded)} reddit posts on initialization")
 
     state
   end
 
   @impl Source
-  def get_posts(%Source{type: "reddit", rules: rules}, state) do
+  def get_posts(%{config: %Source{type: "reddit", rules: rules}} = state) do
     {posts, state} = update_posts(state)
     {approved, known_posts, _} = ChannelManager.Filter.filter_posts(rules, posts)
     Logger.debug("Approved #{length(approved)} reddit posts, remembering #{length(known_posts)}")
