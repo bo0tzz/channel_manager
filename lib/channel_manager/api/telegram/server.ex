@@ -33,6 +33,11 @@ defmodule ChannelManager.Api.Telegram.Server do
   end
 
   @impl true
+  def handle_cast({:update_votes, id, votes}, state) do
+    {:noreply, Messages.update_votes(state, id, votes)}
+  end
+
+  @impl true
   def handle_cast({:track_chat, chat_id}, state) do
     {:noreply, Messages.track_chat(state, chat_id)}
   end

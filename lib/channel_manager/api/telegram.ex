@@ -1,5 +1,6 @@
 defmodule ChannelManager.Api.Telegram do
   alias ChannelManager.Api.Telegram.Util
+  alias ChannelManager.Api.Telegram.Messages
 
   require Logger
 
@@ -14,6 +15,15 @@ defmodule ChannelManager.Api.Telegram do
   def me(), do: ExGram.get_me(bot: bot())
 
   middleware(ExGram.Middleware.IgnoreUsername)
+
+  def handle({:callback_query, %{data: data, message: message} = query}, context) do
+    {old_votes, _} = Integer.parse(data)
+    new_votes = old_votes + 1
+    id = Util.id(message)
+    Messages.update_votes(id, new_votes)
+    new_keyboard = Util.vote_keyboard(new_votes)
+    edit(context, :markup, query, reply_markup: new_keyboard)
+  end
 
   def send_post(post, target, opts) do
     opts = Map.merge(@default_opts, opts)
