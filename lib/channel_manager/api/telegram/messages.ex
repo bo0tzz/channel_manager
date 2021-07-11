@@ -21,7 +21,7 @@ defmodule ChannelManager.Api.Telegram.Messages do
   def track_chat(chat_id), do: GenServer.cast(Server, {:track_chat, chat_id})
   def untrack_chat(chat_id), do: GenServer.cast(Server, {:untrack_chat, chat_id})
 
-  def init(%{storage_path: path}) do
+  def init(%{"storage_path" => path}) do
     %Messages{
       storage_path: path,
       messages: load(path),
@@ -40,7 +40,8 @@ defmodule ChannelManager.Api.Telegram.Messages do
     do: %{state | messages: Map.drop(messages, id)}
 
   def get_all(%Messages{messages: messages}, chat_id) do
-    :maps.filter(&match?({^chat_id, _}, &1), messages)
+    :maps.filter(&match?({{^chat_id, _}, _}, {&1, &2}), messages)
+    |> Enum.map(fn {_, msg} -> msg end)
   end
 
   def update_votes(%Messages{messages: messages} = state, id, votes) do

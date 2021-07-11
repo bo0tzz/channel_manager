@@ -34,7 +34,7 @@ defmodule ChannelManager.Api.Telegram.Server do
 
   @impl true
   def handle_cast({:update_votes, id, votes}, state) do
-    {:noreply, Messages.update_votes(state, id, votes)}
+    {:noreply, Messages.update_votes(state, id, votes), {:continue, :save}}
   end
 
   @impl true

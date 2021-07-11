@@ -9,6 +9,7 @@ defmodule ChannelManager.Application do
 
     children = [
       ExGram,
+      {ChannelManager.Api.Telegram.Server, config["telegram"]},
       {ChannelManager.Api.Telegram, [method: :polling, token: config["telegram"]["token"]]},
       {ChannelManager.Api.Reddit.Server, config["reddit"]},
       {ChannelManager.Forwarder.Supervisor, forwarders}

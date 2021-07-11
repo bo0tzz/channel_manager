@@ -29,4 +29,7 @@ defmodule ChannelManager.Forwarder.Source do
 
   def impl_for(%ChannelManager.Forwarder.Source{type: "reddit"}),
     do: ChannelManager.Forwarder.Source.Reddit
+
+  def impl_for(%ChannelManager.Forwarder.Source{type: "telegram"}),
+    do: ChannelManager.Forwarder.Source.Telegram
 end
