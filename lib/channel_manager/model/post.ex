@@ -12,6 +12,40 @@ defmodule ChannelManager.Model.Post do
     field :type, String.t()
   end
 
+  # TODO: parser with vote count
+  def from_telegram(%{
+        chat: %{id: chat_id},
+        date: timestamp,
+        message_id: message_id,
+        text: text
+      }) do
+    %ChannelManager.Model.Post{
+      id: {chat_id, message_id},
+      caption: text,
+      url: "",
+      timestamp: timestamp,
+      votes: 0,
+      type: "link"
+    }
+  end
+
+  def from_telegram(%{
+        caption: caption,
+        chat: %{id: chat_id},
+        date: timestamp,
+        message_id: message_id,
+        photo: [%{file_id: url} | _]
+      }) do
+    %ChannelManager.Model.Post{
+      id: {chat_id, message_id},
+      caption: caption,
+      url: url,
+      timestamp: timestamp,
+      votes: 0,
+      type: "image"
+    }
+  end
+
   def from_reddit(%{
         "title" => caption,
         "name" => id,
