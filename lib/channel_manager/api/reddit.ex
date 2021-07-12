@@ -20,18 +20,30 @@ defmodule ChannelManager.Api.Reddit do
   end
 
   defp get(url) do
-    # TODO: Don't crash just because reddit is shit
-    {:ok, response} = client() |> Tesla.get(url)
+    client()
+    |> Tesla.get(url)
+    |> case do
+      {:ok, response} ->
+        parse_response(response)
 
-    {:ok, body} =
-      case response do
-        r when r.status in 200..299 -> Jason.decode(response.body)
-        r -> {:error, r.status, r.body}
-      end
+      {:error, err} ->
+        Logger.warn("Reddit api error: #{inspect(err)}")
+        []
+    end
+  end
 
-    Enum.map(body["data"]["children"], fn child -> child["data"] end)
+  defp parse_response(%{status: status, body: body}) when status in 200..299 do
+    {:ok, data} = Jason.decode(body)
+
+    Enum.map(data["data"]["children"], fn child -> child["data"] end)
     |> Enum.map(&ChannelManager.Model.Post.from_reddit/1)
     |> Enum.reject(&match?(nil, &1))
+  end
+
+  defp parse_response(%{status: status, body: body}) do
+    Logger.warn("Reddit returned error status #{status}. Skipping this run")
+    Logger.debug("Reddit response body: #{body}")
+    []
   end
 
   defp client() do
