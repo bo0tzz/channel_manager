@@ -28,6 +28,12 @@ defmodule ChannelManager.Api.Telegram.Server do
   end
 
   @impl true
+  def handle_cast({:remove_with_callback, id, callback}, state) do
+    state = Messages.remove_with_callback(state, id, callback)
+    {:noreply, state, {:continue, :save}}
+  end
+
+  @impl true
   def handle_cast({:update_votes, id, votes}, state) do
     {:noreply, Messages.update_votes(state, id, votes), {:continue, :save}}
   end

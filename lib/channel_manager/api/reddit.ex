@@ -20,6 +20,7 @@ defmodule ChannelManager.Api.Reddit do
   end
 
   defp get(url) do
+    # TODO: Don't crash just because reddit is shit
     {:ok, response} = client() |> Tesla.get(url)
 
     {:ok, body} =

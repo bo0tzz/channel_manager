@@ -16,10 +16,12 @@ defmodule ChannelManager.Api.Telegram do
 
   middleware(ExGram.Middleware.IgnoreUsername)
 
-  def handle({:callback_query, %{data: "delete", message: message}}, context) do
-    id = Util.id(message)
-    Messages.remove(id)
-    delete(context, message)
+  def handle({:callback_query, %{data: "delete", message: message}}, _) do
+    {chat_id, message_id} = id = Util.id(message)
+
+    Messages.remove_with_callback(id, fn ->
+      ExGram.delete_message(chat_id, message_id, bot: bot())
+    end)
   end
 
   def handle(

@@ -20,7 +20,7 @@ defmodule ChannelManager.Forwarder.Source.Telegram do
     Enum.each(denied, &ChannelManager.Api.Telegram.Messages.remove/1)
     Enum.each(approved, &ChannelManager.Api.Telegram.Messages.remove/1)
 
-    # TODO: Optionally delete posts
+    # TODO: Optionally delete posts or change vote keyboard to say "sent"
 
     {approved, state}
   end

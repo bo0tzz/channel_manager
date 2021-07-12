@@ -18,6 +18,7 @@ defmodule ChannelManager.Api.Telegram.Messages do
   def add(message), do: GenServer.cast(Server, {:add, message})
   def remove(%Post{id: id}), do: remove(id)
   def remove(id), do: GenServer.cast(Server, {:remove, id})
+  def remove_with_callback(id, callback), do: GenServer.cast(Server, {:remove_with_callback, id, callback})
   def get_all(chat_id), do: GenServer.call(Server, {:get_all, chat_id})
   def update_votes(id, votes), do: GenServer.cast(Server, {:update_votes, id, votes})
   def track_chat(chat_id), do: GenServer.cast(Server, {:track_chat, chat_id})
@@ -43,6 +44,17 @@ defmodule ChannelManager.Api.Telegram.Messages do
 
   def remove(%Messages{messages: messages} = state, id),
     do: %{state | messages: Map.drop(messages, [id])}
+
+  def remove_with_callback(%Messages{messages: messages} = state, id, callback) do
+    case Map.has_key?(messages, id) do
+      false ->
+        state
+
+      true ->
+        callback.()
+        %{state | messages: Map.drop(messages, [id])}
+    end
+  end
 
   def get_all(%Messages{messages: messages}, chat_id) do
     :maps.filter(&match?({{^chat_id, _}, _}, {&1, &2}), messages)
@@ -74,7 +86,7 @@ defmodule ChannelManager.Api.Telegram.Messages do
 
     case File.write(path, data) do
       :ok ->
-        Logger.info("Saved telegram messages database")
+        Logger.debug("Saved telegram messages database")
         :ok
 
       {:error, reason} ->
