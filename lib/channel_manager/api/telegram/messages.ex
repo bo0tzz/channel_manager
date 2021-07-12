@@ -18,7 +18,10 @@ defmodule ChannelManager.Api.Telegram.Messages do
   def add(message), do: GenServer.cast(Server, {:add, message})
   def remove(%Post{id: id}), do: remove(id)
   def remove(id), do: GenServer.cast(Server, {:remove, id})
-  def remove_with_callback(id, callback), do: GenServer.cast(Server, {:remove_with_callback, id, callback})
+
+  def remove_with_callback(id, callback),
+    do: GenServer.cast(Server, {:remove_with_callback, id, callback})
+
   def get_all(chat_id), do: GenServer.call(Server, {:get_all, chat_id})
   def update_votes(id, votes), do: GenServer.cast(Server, {:update_votes, id, votes})
   def track_chat(chat_id), do: GenServer.cast(Server, {:track_chat, chat_id})
