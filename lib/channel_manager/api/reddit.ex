@@ -20,15 +20,21 @@ defmodule ChannelManager.Api.Reddit do
   end
 
   defp get(url) do
-    client()
-    |> Tesla.get(url)
-    |> case do
-      {:ok, response} ->
-        parse_response(response)
-
-      {:error, err} ->
-        Logger.warn("Reddit api error: #{inspect(err)}")
+    case client() do
+      nil ->
+        Logger.warn("Reddit api error: No valid OAuth token")
         []
+
+      client ->
+        Tesla.get(client, url)
+        |> case do
+          {:ok, response} ->
+            parse_response(response)
+
+          {:error, err} ->
+            Logger.warn("Reddit api error: #{inspect(err)}")
+            []
+        end
     end
   end
 
@@ -47,15 +53,19 @@ defmodule ChannelManager.Api.Reddit do
   end
 
   defp client() do
-    token = ChannelManager.Api.Reddit.OAuth.get_token()
+    case ChannelManager.Api.Reddit.OAuth.get_token() do
+      "" ->
+        nil
 
-    Tesla.client([
-      {Tesla.Middleware.BaseUrl, @api_root},
-      {Tesla.Middleware.Headers,
-       [
-         {"Authorization", "Bearer " <> token},
-         {"User-Agent", "bo0tzz:telegram-channel-mirror:v0.1.0"}
-       ]}
-    ])
+      token ->
+        Tesla.client([
+          {Tesla.Middleware.BaseUrl, @api_root},
+          {Tesla.Middleware.Headers,
+           [
+             {"Authorization", "Bearer " <> token},
+             {"User-Agent", "bo0tzz:telegram-channel-mirror:v1.0.0"}
+           ]}
+        ])
+    end
   end
 end

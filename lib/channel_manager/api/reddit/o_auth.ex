@@ -1,4 +1,6 @@
 defmodule ChannelManager.Api.Reddit.OAuth do
+  require Logger
+
   defstruct [
     :client_id,
     :client_secret,
@@ -32,21 +34,32 @@ defmodule ChannelManager.Api.Reddit.OAuth do
   end
 
   def request_token(state) do
-    {:ok, response} =
-      client(state)
-      |> Tesla.post("/api/v1/access_token", %{grant_type: :client_credentials})
+    client(state)
+    |> Tesla.post("/api/v1/access_token", %{grant_type: :client_credentials})
+    |> case do
+      {:ok, response} ->
+        parse_response(response, state)
 
-    {:ok, body} =
-      case response do
-        r when r.status in 200..299 -> Jason.decode(response.body)
-        r -> {:error, r.status, r.body}
-      end
+      {:error, err} ->
+        Logger.warn("Reddit api error: #{inspect(err)}")
+        nil
+    end
+  end
 
-    token = body["access_token"]
-    expires_in = body["expires_in"]
+  defp parse_response(%{status: status, body: body}, state) when status in 200..299 do
+    {:ok, data} = Jason.decode(body)
+
+    token = data["access_token"]
+    expires_in = data["expires_in"]
     expiry = System.os_time(:second) + expires_in
 
     %{state | token: token, expiry: expiry}
+  end
+
+  defp parse_response(%{status: status, body: body}, state) do
+    Logger.warn("Could not request OAuth token. Reddit returned error status #{status}")
+    Logger.debug("Reddit response body: #{body}")
+    %{state | token: "", expiry: 0}
   end
 
   defp client(%OAuth{client_id: id, client_secret: secret}) do
