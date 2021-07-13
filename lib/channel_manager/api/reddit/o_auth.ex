@@ -23,7 +23,7 @@ defmodule ChannelManager.Api.Reddit.OAuth do
 
   def get_token(%OAuth{expiry: exp} = state) do
     state =
-      case System.os_time(:second) - exp do
+      case exp - System.os_time(:second) do
         s_left when s_left < 60 -> request_token(state)
         _ -> state
       end
